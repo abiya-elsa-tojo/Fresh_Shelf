@@ -2,32 +2,12 @@
 let items = [];
 let selectedCategory = sessionStorage.getItem("selectedCategory") || null;
 
-// Load items from storage on page load
+// Load items from storage on page load (use AppStorage wrapper)
 function loadItemsFromStorage() {
   try {
-    // Read from both storages to avoid missing items saved in one
-    let sessionItems = [];
-    let localItems = [];
-    try {
-      const s = sessionStorage.getItem("freshShelfItems");
-      sessionItems = s ? JSON.parse(s) : [];
-    } catch (e) {
-      sessionItems = [];
-    }
-    try {
-      const l = localStorage.getItem("freshShelfItems");
-      localItems = l ? JSON.parse(l) : [];
-    } catch (e) {
-      localItems = [];
-    }
-
-    // Merge and dedupe by id (prefer session items when duplicate)
-    const map = new Map();
-    localItems.concat(sessionItems).forEach(it => {
-      map.set(it.id, it);
-    });
-    items = Array.from(map.values());
-    console.log("Loaded items (merged):", items);
+    const stored = window.AppStorage && AppStorage.get("freshShelfItems");
+    items = Array.isArray(stored) ? stored : [];
+    console.log("Loaded items:", items);
   } catch (error) {
     console.error("Error loading items:", error);
     items = [];
@@ -107,19 +87,20 @@ if (form) {
   });
 }
 
-// Save items to storage
+// Save items to storage via AppStorage
 function saveItems() {
   try {
-    sessionStorage.setItem("freshShelfItems", JSON.stringify(items));
+    if (window.AppStorage) {
+      AppStorage.set("freshShelfItems", items);
+    } else {
+      // fallback
+      try { sessionStorage.setItem("freshShelfItems", JSON.stringify(items)); } catch (e) {}
+      try { localStorage.setItem("freshShelfItems", JSON.stringify(items)); } catch (e) {}
+    }
+    console.log("Saved items:", items);
   } catch (error) {
-    console.error("Error saving items to sessionStorage:", error);
+    console.error("Error saving items:", error);
   }
-  try {
-    localStorage.setItem("freshShelfItems", JSON.stringify(items));
-  } catch (error) {
-    console.error("Error saving items to localStorage:", error);
-  }
-  console.log("Saved items:", items);
 }
 
 // Get status for an item
@@ -335,20 +316,10 @@ function displayItems() {
 
 // Helper: read and merge items from both storages (used for recipe generation)
 function getMergedItems() {
-  let sessionItems = [];
-  let localItems = [];
   try {
-    const s = sessionStorage.getItem('freshShelfItems');
-    sessionItems = s ? JSON.parse(s) : [];
-  } catch (e) { sessionItems = []; }
-  try {
-    const l = localStorage.getItem('freshShelfItems');
-    localItems = l ? JSON.parse(l) : [];
-  } catch (e) { localItems = []; }
-
-  const map = new Map();
-  localItems.concat(sessionItems).forEach(it => map.set(it.id, it));
-  return Array.from(map.values());
+    const stored = window.AppStorage ? AppStorage.get('freshShelfItems') : null;
+    return Array.isArray(stored) ? stored : [];
+  } catch (e) { return []; }
 }
 
 // Generate recipe ideas: render inline modal instead of alert

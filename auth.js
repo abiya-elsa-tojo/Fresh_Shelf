@@ -1,21 +1,12 @@
-// Initialize storage (use sessionStorage for file:// protocol compatibility)
+// Users and storage key (use AppStorage wrapper)
 let users = [];
 const STORAGE_KEY = "freshShelfUsers";
 
-// Detect if we're running on file:// protocol
-const isFileProtocol = window.location.protocol === "file:";
-const storage = isFileProtocol ? sessionStorage : localStorage;
-
-console.log("Auth.js loaded. Protocol:", window.location.protocol, "Using:", isFileProtocol ? "sessionStorage" : "localStorage");
-
-// Load users from storage
 function loadUsers() {
   try {
-    const stored = storage.getItem(STORAGE_KEY);
-    console.log("Stored data from storage:", stored);
-    
+    const stored = window.AppStorage ? AppStorage.get(STORAGE_KEY) : null;
     if (stored) {
-      users = JSON.parse(stored);
+      users = stored;
       console.log("✓ Loaded users:", users);
     } else {
       users = [];
@@ -24,22 +15,21 @@ function loadUsers() {
   } catch (error) {
     console.error("❌ Error loading users:", error);
     users = [];
-    // Try to recover from corrupted data
-    try {
-      storage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.error("Could not clear storage:", e);
-    }
+    try { if (window.AppStorage) AppStorage.remove(STORAGE_KEY); } catch (e) { console.error(e); }
   }
 }
 
-// Save users to storage
 function saveUsers() {
   try {
-    const jsonData = JSON.stringify(users);
-    storage.setItem(STORAGE_KEY, jsonData);
-    console.log("✓ Saved users to storage:", users);
-    console.log("Verification - retrieved:", storage.getItem(STORAGE_KEY));
+    if (window.AppStorage) {
+      AppStorage.set(STORAGE_KEY, users);
+      console.log("✓ Saved users to AppStorage:", users);
+    } else {
+      const jsonData = JSON.stringify(users);
+      try { localStorage.setItem(STORAGE_KEY, jsonData); } catch (e) {}
+      try { sessionStorage.setItem(STORAGE_KEY, jsonData); } catch (e) {}
+      console.log("✓ Saved users to storages (fallback)");
+    }
   } catch (error) {
     console.error("❌ Error saving users:", error);
     alert("Error saving data. Try using a different browser or clearing storage.");
@@ -157,8 +147,10 @@ if (loginForm) {
 
     if (user) {
       console.log("✓ LOGIN SUCCESSFUL!", user.username);
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      sessionStorage.setItem("currentUser", JSON.stringify(user));
+      try {
+        if (window.AppStorage) AppStorage.set("currentUser", user);
+      } catch (e) {}
+      try { sessionStorage.setItem("currentUser", JSON.stringify(user)); } catch (e) {}
       console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━");
       
       setTimeout(() => {
