@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Item - Fresh Shelf</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .category-page {
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      .category-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .category-visual {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      animation: slide-in-up 0.8s ease-out;
+    }
+
+    .form-container {
+      animation: slide-in-down 0.8s ease-out;
+    }
+
+    .form-container h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--color-accent);
+    }
+
+    .form-container p {
+      color: var(--color-muted);
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    /* Category-specific background gradients */
+    .category-dairy {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(167, 139, 250, 0.08) 100%);
+    }
+
+    .category-vegetables {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(16, 185, 129, 0.08) 100%);
+    }
+
+    .category-fruits {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(219, 39, 119, 0.08) 100%);
+    }
+
+    .category-meats {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(249, 115, 22, 0.08) 100%);
+    }
+
+    .category-seafood {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(14, 165, 233, 0.08) 100%);
+    }
+
+    .category-bakery {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(251, 191, 36, 0.08) 100%);
+    }
+
+    .category-grains {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(217, 119, 6, 0.08) 100%);
+    }
+
+    .category-spices {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(239, 68, 68, 0.08) 100%);
+    }
+
+    .category-beverages {
+      background: linear-gradient(135deg, #F4F1FA 0%, rgba(139, 92, 246, 0.08) 100%);
+    }
+
+    /* Animated blobs for category page */
+    .category-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      animation: clay-float 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .category-visual {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="categoryPage" class="category-page">
+    <!-- Animated clay blobs -->
+    <div class="category-blob" style="width: 300px; height: 300px; background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%); top: -150px; right: -100px;"></div>
+    <div class="category-blob" style="width: 250px; height: 250px; background: linear-gradient(135deg, #DB2777 0%, #EC4899 100%); bottom: -150px; left: -50px; animation-delay: -2s;"></div>
+
+    <a href="index.html" class="back-button">← Back to Dashboard</a>
+
+    <div class="category-content">
+      <!-- Product visuals -->
+      <div class="product-showcase" id="categoryVisual">
+        <!-- Will be populated by JavaScript -->
+      </div>
+
+      <!-- Add form -->
+      <div class="form-container">
+        <h1 id="categoryTitle">Dairy</h1>
+        <p id="categoryDescription">Add your dairy products and track expiry dates</p>
+
+        <div class="add-item-form-section">
+          <form id="addItemForm">
+            <div class="form-group">
+              <label for="itemName">Product Name</label>
+              <input 
+                type="text" 
+                id="itemName" 
+                required
+                autocomplete="off"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="expiryDate">Expiry Date</label>
+              <input 
+                type="date" 
+                id="expiryDate" 
+                required
+              >
+            </div>
+
+            <button type="submit" class="btn-primary">Add Item</button>
+            <button type="button" id="viewSavedBtn" class="btn-secondary" style="margin-top:1rem; width:100%">View Saved Items</button>
+          </form>
+          <div id="savedItemsPanel" class="add-item-form-section" style="display:none; margin-top:1rem; padding:1rem;">
+            <h3 style="margin-top:0; margin-bottom:0.5rem; color:var(--color-foreground);">Saved Items</h3>
+            <ul id="savedItemsList" style="list-style:none; padding:0; margin:0; color:var(--color-foreground);"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-message" id="successMessage" style="display: none;">✓ Item added successfully!</div>
+
+  <script>
+    // Category data with products
+    const categoryData = {
+      "Dairy": {
+        icon: "🥛",
+        description: "Add your dairy products and track expiry dates",
+        products: ["🥛", "🧀", "🍶", "🥛"],
+        className: "category-dairy"
+      },
+      "Vegetables": {
+        icon: "🥬",
+        description: "Keep track of your fresh vegetables",
+        products: ["🥬", "🥒", "🌽", "🥕"],
+        className: "category-vegetables"
+      },
+      "Fruits": {
+        icon: "🍎",
+        description: "Monitor your fresh fruits",
+        products: ["🍎", "🍌", "🍊", "🍇"],
+        className: "category-fruits"
+      },
+      "Meats": {
+        icon: "🥩",
+        description: "Track your meat freshness",
+        products: ["🥩", "🍗", "🥓", "🍖"],
+        className: "category-meats"
+      },
+      "Seafood": {
+        icon: "🐟",
+        description: "Monitor your seafood inventory",
+        products: ["🐟", "🦪", "🦞", "🦐"],
+        className: "category-seafood"
+      },
+      "Bakery": {
+        icon: "🍞",
+        description: "Keep your bakery items fresh",
+        products: ["🍞", "🥐", "🧁", "🍰"],
+        className: "category-bakery"
+      },
+      "Grains & Pulses": {
+        icon: "🌾",
+        description: "Track your grains and pulses",
+        products: ["🌾", "🍚", "🥔", "🫘"],
+        className: "category-grains"
+      },
+      "Spices & Condiments": {
+        icon: "🌶️",
+        description: "Manage your spices and condiments",
+        products: ["🌶️", "🧂", "🧄", "🫑"],
+        className: "category-spices"
+      },
+      "Beverages": {
+        icon: "☕",
+        description: "Track your drinks and beverages",
+        products: ["☕", "🧃", "🥤", "🍵"],
+        className: "category-beverages"
+      }
+    };
+
+    // Get category from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get("category") || sessionStorage.getItem("selectedCategory") || "Dairy";
+
+    // Verify category exists
+    if (!categoryData[category]) {
+      window.location.href = "index.html";
+    }
+
+    const data = categoryData[category];
+
+    // Set up page
+    document.getElementById("categoryPage").classList.add(data.className);
+    document.getElementById("categoryTitle").textContent = category;
+    document.getElementById("categoryDescription").textContent = data.description;
+
+    // Populate product tiles
+    const visualContainer = document.getElementById("categoryVisual");
+    data.products.forEach(product => {
+      const tile = document.createElement("div");
+      tile.className = "product-tile";
+      tile.innerHTML = `<span class="product-emoji">${product}</span>`;
+      visualContainer.appendChild(tile);
+    });
+
+    // Handle form submission
+    document.getElementById("addItemForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const itemName = document.getElementById("itemName").value.trim();
+      const expiryDate = document.getElementById("expiryDate").value;
+
+      if (!itemName || !expiryDate) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Get items from localStorage
+      let items = [];
+      try {
+        const stored = sessionStorage.getItem("freshShelfItems");
+        items = stored ? JSON.parse(stored) : [];
+      } catch (error) {
+        items = [];
+      }
+
+      // Add new item
+      items.push({
+        name: itemName,
+        category: category,
+        expiry: expiryDate,
+        id: Date.now()
+      });
+
+      // Save to both sessionStorage and localStorage for compatibility
+      try {
+        sessionStorage.setItem("freshShelfItems", JSON.stringify(items));
+      } catch (error) {
+        console.error("Error saving items to sessionStorage:", error);
+      }
+      try {
+        localStorage.setItem("freshShelfItems", JSON.stringify(items));
+      } catch (error) {
+        console.error("Error saving items to localStorage:", error);
+      }
+
+      // Show success message
+      const successMessage = document.getElementById("successMessage");
+      successMessage.style.display = "block";
+      successMessage.textContent = `✓ ${itemName} added to ${category}!`;
+
+      // Reset form
+      document.getElementById("addItemForm").reset();
+
+      // Hide message after 2 seconds
+      setTimeout(() => {
+        successMessage.style.display = "none";
+      }, 2000);
+
+      // Redirect to dashboard after 1.5 seconds
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1500);
+    });
+
+    // Saved items panel functions
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function(ch) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[ch];
+      });
+    }
+
+    function loadSavedItems() {
+      const listEl = document.getElementById('savedItemsList');
+      listEl.innerHTML = '';
+      let sessionItems = [];
+      let localItems = [];
+      try {
+        const s = sessionStorage.getItem('freshShelfItems');
+        sessionItems = s ? JSON.parse(s) : [];
+      } catch (e) { sessionItems = []; }
+      try {
+        const l = localStorage.getItem('freshShelfItems');
+        localItems = l ? JSON.parse(l) : [];
+      } catch (e) { localItems = []; }
+
+      // Merge and dedupe by id (prefer sessionItems when duplicate)
+      const allMap = new Map();
+      localItems.concat(sessionItems).forEach(it => {
+        allMap.set(it.id, it);
+      });
+      const items = Array.from(allMap.values());
+
+      const filtered = items.filter(it => it.category === category);
+      if (!filtered.length) {
+        listEl.innerHTML = '<li style="color:var(--color-muted); padding:0.5rem 0;">No saved items in this category.</li>';
+        return;
+      }
+      filtered.forEach(it => {
+        const li = document.createElement('li');
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.alignItems = 'center';
+        li.style.padding = '0.5rem 0';
+        li.innerHTML = '<span>' + escapeHtml(it.name) + ' — <small style="color:var(--color-muted)">' + escapeHtml(it.expiry) + '</small></span>';
+        const del = document.createElement('button');
+        del.className = 'btn-secondary';
+        del.textContent = 'Delete';
+        del.style.marginLeft = '1rem';
+        del.onclick = () => {
+          // Remove from both storages
+          const remainingSession = sessionItems.filter(x => x.id !== it.id);
+          const remainingLocal = localItems.filter(x => x.id !== it.id);
+          try { sessionStorage.setItem('freshShelfItems', JSON.stringify(remainingSession)); } catch(e){}
+          try { localStorage.setItem('freshShelfItems', JSON.stringify(remainingLocal)); } catch(e){}
+          loadSavedItems();
+        };
+        li.appendChild(del);
+        listEl.appendChild(li);
+      });
+    }
+
+    document.getElementById('viewSavedBtn').addEventListener('click', function() {
+      const panel = document.getElementById('savedItemsPanel');
+      if (!panel) return;
+      if (panel.style.display === 'none' || panel.style.display === '') {
+        loadSavedItems();
+        panel.style.display = 'block';
+        this.textContent = 'Hide Saved Items';
+      } else {
+        panel.style.display = 'none';
+        this.textContent = 'View Saved Items';
+      }
+    });
+
+    // Store category for session
+    sessionStorage.setItem("selectedCategory", category);
+  </script>
+
+</body>
+</html>

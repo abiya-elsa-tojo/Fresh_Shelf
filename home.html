@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fresh Shelf - Track Your Food Freshness</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="hero">
+    <!-- Animated clay blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+
+    <!-- Floating food items -->
+    <div class="floating-items">
+      <div class="floating-item" style="top: 10%; left: 5%; animation-delay: 0s; animation-duration: 8s;">🥛</div>
+      <div class="floating-item" style="top: 20%; right: 8%; animation-delay: 1s; animation-duration: 7s;">🍎</div>
+      <div class="floating-item" style="top: 50%; left: 10%; animation-delay: 2s; animation-duration: 9s;">🥬</div>
+      <div class="floating-item" style="bottom: 15%; right: 10%; animation-delay: 0.5s; animation-duration: 8s;">🍞</div>
+      <div class="floating-item" style="top: 35%; left: 20%; animation-delay: 1.5s; animation-duration: 7s;">🥩</div>
+      <div class="floating-item" style="bottom: 25%; left: 5%; animation-delay: 2.5s; animation-duration: 8.5s;">🌾</div>
+    </div>
+
+    <!-- Hero content -->
+    <div class="hero-content">
+      <h1>Fresh Shelf</h1>
+      <p>Never forget when your food expires. Track expiry dates with style.</p>
+      <a href="index.html" class="btn-primary" style="display: inline-flex; width: auto;">Get Started →</a>
+    </div>
+  </section>
+
+  <!-- Categories Showcase -->
+  <section class="categories-showcase">
+    <div style="text-align: center; margin-bottom: 3rem; position: relative; z-index: 10;">
+      <h2 style="color: var(--color-foreground); margin-bottom: 0.5rem;">Organize by Category</h2>
+      <p style="color: var(--color-muted); font-size: 1.1rem;">Explore food groups and start tracking</p>
+    </div>
+
+    <div class="categories-grid">
+      <div class="product-tile">
+        <span class="product-emoji">🥛</span>
+        <span class="product-name">Dairy</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🥬</span>
+        <span class="product-name">Vegetables</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🍎</span>
+        <span class="product-name">Fruits</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🥩</span>
+        <span class="product-name">Meats</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🐟</span>
+        <span class="product-name">Seafood</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🍞</span>
+        <span class="product-name">Bakery</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🌾</span>
+        <span class="product-name">Grains & Pulses</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🌶️</span>
+        <span class="product-name">Spices & Condiments</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">☕</span>
+        <span class="product-name">Beverages</span>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.5rem;
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      .categories-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        padding: 2rem 1.5rem;
+      }
+
+      .floating-item {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</body>
+</html>
