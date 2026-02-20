@@ -117,6 +117,7 @@
     <div class="category-blob" style="width: 250px; height: 250px; background: linear-gradient(135deg, #DB2777 0%, #EC4899 100%); bottom: -150px; left: -50px; animation-delay: -2s;"></div>
 
     <a href="index.html" class="back-button">← Back to Dashboard</a>
+    <div id="expiryAlert" style="display:none; margin:1rem 2rem;"></div>
 
     <div class="category-content">
       <!-- Product visuals -->
@@ -261,12 +262,13 @@
         return;
       }
 
-      // Get items from localStorage
+      // Get items from storage using AppStorage or fallback
       let items = [];
       try {
-        const stored = sessionStorage.getItem("freshShelfItems");
-        items = stored ? JSON.parse(stored) : [];
+        const stored = (window.AppStorage) ? AppStorage.get("freshShelfItems") : null;
+        items = Array.isArray(stored) ? stored : [];
       } catch (error) {
+        console.error("Error loading items:", error);
         items = [];
       }
 
@@ -278,16 +280,18 @@
         id: Date.now()
       });
 
-      // Save to both sessionStorage and localStorage for compatibility
+      // Save using AppStorage
       try {
-        sessionStorage.setItem("freshShelfItems", JSON.stringify(items));
+        if (window.AppStorage) {
+          AppStorage.set("freshShelfItems", items);
+        } else {
+          // Fallback to direct storage
+          sessionStorage.setItem("freshShelfItems", JSON.stringify(items));
+          localStorage.setItem("freshShelfItems", JSON.stringify(items));
+        }
+        console.log("Items saved successfully:", items);
       } catch (error) {
-        console.error("Error saving items to sessionStorage:", error);
-      }
-      try {
-        localStorage.setItem("freshShelfItems", JSON.stringify(items));
-      } catch (error) {
-        console.error("Error saving items to localStorage:", error);
+        console.error("Error saving items:", error);
       }
 
       // Show success message
@@ -319,51 +323,134 @@
     function loadSavedItems() {
       const listEl = document.getElementById('savedItemsList');
       listEl.innerHTML = '';
-      let sessionItems = [];
-      let localItems = [];
+      
+      // Get items using AppStorage or fallback
+      let items = [];
       try {
-        const s = sessionStorage.getItem('freshShelfItems');
-        sessionItems = s ? JSON.parse(s) : [];
-      } catch (e) { sessionItems = []; }
-      try {
-        const l = localStorage.getItem('freshShelfItems');
-        localItems = l ? JSON.parse(l) : [];
-      } catch (e) { localItems = []; }
+        const stored = (window.AppStorage) ? AppStorage.get('freshShelfItems') : null;
+        if (Array.isArray(stored)) {
+          items = stored;
+        } else {
+          // Fallback to direct storage merge
+          let sessionItems = [];
+          let localItems = [];
+          try {
+            const s = sessionStorage.getItem('freshShelfItems');
+            sessionItems = s ? JSON.parse(s) : [];
+          } catch (e) { sessionItems = []; }
+          try {
+            const l = localStorage.getItem('freshShelfItems');
+            localItems = l ? JSON.parse(l) : [];
+          } catch (e) { localItems = []; }
 
-      // Merge and dedupe by id (prefer sessionItems when duplicate)
-      const allMap = new Map();
-      localItems.concat(sessionItems).forEach(it => {
-        allMap.set(it.id, it);
-      });
-      const items = Array.from(allMap.values());
+          // Merge and dedupe by id (prefer sessionItems when duplicate)
+          const allMap = new Map();
+          localItems.concat(sessionItems).forEach(it => {
+            allMap.set(it.id, it);
+          });
+          items = Array.from(allMap.values());
+        }
+      } catch (e) { 
+        console.error('Error loading items:', e);
+        items = [];
+      }
 
       const filtered = items.filter(it => it.category === category);
-      if (!filtered.length) {
-        listEl.innerHTML = '<li style="color:var(--color-muted); padding:0.5rem 0;">No saved items in this category.</li>';
-        return;
-      }
-      filtered.forEach(it => {
-        const li = document.createElement('li');
-        li.style.display = 'flex';
-        li.style.justifyContent = 'space-between';
-        li.style.alignItems = 'center';
-        li.style.padding = '0.5rem 0';
-        li.innerHTML = '<span>' + escapeHtml(it.name) + ' — <small style="color:var(--color-muted)">' + escapeHtml(it.expiry) + '</small></span>';
-        const del = document.createElement('button');
-        del.className = 'btn-secondary';
-        del.textContent = 'Delete';
-        del.style.marginLeft = '1rem';
-        del.onclick = () => {
-          // Remove from both storages
-          const remainingSession = sessionItems.filter(x => x.id !== it.id);
-          const remainingLocal = localItems.filter(x => x.id !== it.id);
-          try { sessionStorage.setItem('freshShelfItems', JSON.stringify(remainingSession)); } catch(e){}
-          try { localStorage.setItem('freshShelfItems', JSON.stringify(remainingLocal)); } catch(e){}
-          loadSavedItems();
-        };
-        li.appendChild(del);
-        listEl.appendChild(li);
-      });
+        if (!filtered.length) {
+          listEl.innerHTML = '<li style="color:var(--color-muted); padding:0.5rem 0;">No saved items in this category.</li>';
+          // hide alert if none
+          const alertElEmpty = document.getElementById('expiryAlert'); if (alertElEmpty) alertElEmpty.style.display = 'none';
+          return;
+        }
+
+        const expiringSoon = [];
+        const expired = [];
+
+        filtered.forEach(it => {
+          const li = document.createElement('li');
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+          li.style.alignItems = 'center';
+          li.style.padding = '0.5rem 0';
+
+          // Compute expiry info
+          let daysLeft = null;
+          try {
+            const today = new Date();
+            const exp = new Date(it.expiry);
+            const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const diffMs = exp - t;
+            daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          } catch (e) {
+            daysLeft = null;
+          }
+
+          const formattedDate = (function(){ try { return new Date(it.expiry).toLocaleDateString(); } catch(e) { return escapeHtml(it.expiry); } })();
+
+          let statusText = 'Safe';
+          let statusColor = '#10B981';
+          if (daysLeft !== null) {
+            if (daysLeft <= 0) { statusText = 'Expired'; statusColor = '#EF4444'; expired.push({name: it.name}); }
+            else if (daysLeft <= 7) { statusText = 'Expiring Soon'; statusColor = '#F59E0B'; expiringSoon.push({name: it.name, days: daysLeft}); }
+          }
+
+          const daysText = (daysLeft === null) ? '' : (daysLeft > 0 ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : 'Expired');
+
+          li.innerHTML = '<div style="display:flex; flex-direction:column;">'
+            + '<span>' + escapeHtml(it.name) + '</span>'
+            + '<small style="color:var(--color-muted)">Expires: ' + escapeHtml(formattedDate) + (daysText ? ' — ' + escapeHtml(daysText) : '') + '</small>'
+            + '</div>'
+            + '<div class="saved-right" style="display:flex; align-items:center; gap:0.5rem;"></div>';
+
+          const del = document.createElement('button');
+          del.className = 'btn-secondary';
+          del.textContent = 'Delete';
+          del.style.marginLeft = '0';
+          del.onclick = () => {
+            // Remove using AppStorage
+            const updatedItems = items.filter(x => x.id !== it.id);
+            try {
+              if (window.AppStorage) {
+                AppStorage.set('freshShelfItems', updatedItems);
+              } else {
+                // Fallback
+                sessionStorage.setItem('freshShelfItems', JSON.stringify(updatedItems));
+                localStorage.setItem('freshShelfItems', JSON.stringify(updatedItems));
+              }
+            } catch (e) { console.error('Error deleting item:', e); }
+            loadSavedItems();
+          };
+
+          // status badge
+          const rightDiv = li.querySelector('.saved-right');
+          const badge = document.createElement('span');
+          badge.textContent = statusText;
+          badge.style.cssText = 'background:' + statusColor + '; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size:0.85rem; font-weight:600;';
+          rightDiv.appendChild(badge);
+          rightDiv.appendChild(del);
+
+          listEl.appendChild(li);
+        });
+
+        // Update alert banner based on expiring/expired items
+        const alertEl = document.getElementById('expiryAlert');
+        if (alertEl) {
+          if (expired.length > 0) {
+            alertEl.style.display = 'block';
+            alertEl.innerHTML = '<div style="background:#FEF2F2;border-left:4px solid #EF4444;padding:0.75rem;border-radius:6px;color:#7F1D1D;">'
+              + '<strong>' + expired.length + ' expired</strong> — please remove or consume these items.'
+              + '</div>';
+          } else if (expiringSoon.length > 0) {
+            const names = expiringSoon.map(x => `${escapeHtml(x.name)} (${x.days}d)`).join(', ');
+            alertEl.style.display = 'block';
+            alertEl.innerHTML = '<div style="background:#FFFBEB;border-left:4px solid #F59E0B;padding:0.75rem;border-radius:6px;color:#92400E;">'
+              + '<strong>' + expiringSoon.length + ' expiring soon</strong>: ' + names
+              + '</div>';
+          } else {
+            alertEl.style.display = 'none';
+            alertEl.innerHTML = '';
+          }
+        }
     }
 
     document.getElementById('viewSavedBtn').addEventListener('click', function() {
@@ -381,6 +468,9 @@
 
     // Store category for session
     sessionStorage.setItem("selectedCategory", category);
+
+    // Run expiry check on load so banner appears without clicking 'View Saved Items'
+    try { loadSavedItems(); } catch (e) { /* ignore if loadSavedItems not ready */ }
   </script>
 
 </body>

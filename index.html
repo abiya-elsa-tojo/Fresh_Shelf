@@ -3,76 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Fresh Shelf</title>
+  <title>Fresh Shelf - Track Your Food Freshness</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <section class="hero">
+    <!-- Animated clay blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
 
-  <div class="container" style="position: relative;">
-    <!-- Animated clay blobs background -->
-    <div class="blob blob-1" style="top: -200px; left: -150px; z-index: 0;"></div>
-    <div class="blob blob-2" style="top: 300px; right: -100px; z-index: 0;"></div>
-    <div class="blob blob-4" style="bottom: -200px; left: 100px; z-index: 0;"></div>
-
-    <!-- Header with navigation -->
-    <div style="position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(51, 47, 58, 0.1);">
-      <div class="dashboard-header" style="margin-bottom: 0; flex: 1;">
-        <h1 style="margin-bottom: 0;">Fresh Shelf</h1>
-        <p style="margin-bottom: 0;">Track your food expiry dates & save money</p>
-      </div>
+    <!-- Floating food items -->
+    <div class="floating-items">
+      <div class="floating-item" style="top: 10%; left: 5%; animation-delay: 0s; animation-duration: 8s;">🥛</div>
+      <div class="floating-item" style="top: 20%; right: 8%; animation-delay: 1s; animation-duration: 7s;">🍎</div>
+      <div class="floating-item" style="top: 50%; left: 10%; animation-delay: 2s; animation-duration: 9s;">🥬</div>
+      <div class="floating-item" style="bottom: 15%; right: 10%; animation-delay: 0.5s; animation-duration: 8s;">🍞</div>
+      <div class="floating-item" style="top: 35%; left: 20%; animation-delay: 1.5s; animation-duration: 7s;">🥩</div>
+      <div class="floating-item" style="bottom: 25%; left: 5%; animation-delay: 2.5s; animation-duration: 8.5s;">🌾</div>
     </div>
 
-    <!-- Category Selector Section -->
-    <div class="category-selector-section">
-      <div class="form-group">
-        <label for="categoryFilter">Select Category</label>
-        <select 
-          id="categoryFilter" 
-          aria-label="Select category to view"
-        >
-          <option value="">-- Choose a category --</option>
-          <option value="Dairy">🥛 Dairy</option>
-          <option value="Vegetables">🥬 Vegetables</option>
-          <option value="Fruits">🍎 Fruits</option>
-          <option value="Meats">🥩 Meats</option>
-          <option value="Seafood">🐟 Seafood</option>
-          <option value="Bakery">🍞 Bakery</option>
-          <option value="Grains & Pulses">🌾 Grains & Pulses</option>
-          <option value="Spices & Condiments">🌶️ Spices & Condiments</option>
-          <option value="Beverages">☕ Beverages</option>
-        </select>
-      </div>
+    <!-- Hero content -->
+    <div class="hero-content">
+      <h1>Fresh Shelf</h1>
+      <p>Never forget when your food expires. Track expiry dates with style.</p>
+      <a href="home.html" class="btn-primary" style="display: inline-flex; width: auto;">Get Started →</a>
+    </div>
+  </section>
+
+  <!-- Categories Showcase -->
+  <section class="categories-showcase">
+    <div style="text-align: center; margin-bottom: 3rem; position: relative; z-index: 10;">
+      <h2 style="color: var(--color-foreground); margin-bottom: 0.5rem;">Organize by Category</h2>
+      <p style="color: var(--color-muted); font-size: 1.1rem;">Explore food groups and start tracking</p>
     </div>
 
-    <!-- Items Display Section -->
-    <div class="items-section">
-      <h2>Your Items</h2>
-      <div id="categoriesContainer" class="categories-container">
-        <!-- Categories will be rendered here by JavaScript -->
+    <div class="categories-grid">
+      <div class="product-tile">
+        <span class="product-emoji">🥛</span>
+        <span class="product-name">Dairy</span>
       </div>
-      <div id="emptyState" style="text-align: center; padding: 3rem 1rem; color: var(--color-muted); position: relative; z-index: 10;">
-        <p style="font-size: 1.125rem; margin-bottom: 0.5rem;">No items yet</p>
-        <p>Add your first item to get started! 🌿</p>
+      <div class="product-tile">
+        <span class="product-emoji">🥬</span>
+        <span class="product-name">Vegetables</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🍎</span>
+        <span class="product-name">Fruits</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🥩</span>
+        <span class="product-name">Meats</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🐟</span>
+        <span class="product-name">Seafood</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🍞</span>
+        <span class="product-name">Bakery</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🌾</span>
+        <span class="product-name">Grains & Pulses</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">🌶️</span>
+        <span class="product-name">Spices & Condiments</span>
+      </div>
+      <div class="product-tile">
+        <span class="product-emoji">☕</span>
+        <span class="product-name">Beverages</span>
       </div>
     </div>
+  </section>
 
-    <!-- Actions -->
-    <div style="text-align: center; margin-top: 3rem; position: relative; z-index: 10;">
-      <button id="recipeBtn" class="btn-secondary">Generate Recipe Ideas</button>
-    </div>
-    <!-- Recipe Modal Markup -->
-    <div id="recipeBackdrop" class="modal-backdrop">
-      <div id="recipeModal" class="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipeTitle">
-        <div class="modal-header">
-          <div class="modal-title" id="recipeTitle">Recipe Ideas</div>
-          <button id="recipeClose" class="modal-close" aria-label="Close">✕</button>
-        </div>
-        <div id="recipeContent" class="modal-content" style="color:var(--color-muted)"></div>
-      </div>
-    </div>
-  </div>
+  <style>
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.5rem;
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
 
-  <script src="storage.js"></script>
-  <script src="script.js"></script>
+    @media (max-width: 768px) {
+      .categories-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        padding: 2rem 1.5rem;
+      }
+
+      .floating-item {
+        font-size: 2rem;
+      }
+    }
+  </style>
+  <script>
+    // Make category tiles navigate to home.html and set selectedCategory in sessionStorage
+    (function(){
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.categories-grid .product-tile').forEach(tile => {
+          tile.style.cursor = 'pointer';
+          tile.setAttribute('role','button');
+          tile.addEventListener('click', function(){
+            const nameEl = this.querySelector('.product-name');
+            const cat = nameEl ? nameEl.textContent.trim() : null;
+            if (cat) {
+              try { sessionStorage.setItem('selectedCategory', cat); } catch (e) {}
+              window.location.href = 'home.html';
+            }
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

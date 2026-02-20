@@ -1,8 +1,5 @@
-// AppStorage wrapper (duplicate in folder for local pages)
+// AppStorage wrapper: unify localStorage/sessionStorage with robust fallback
 (function(){
-  const isFile = window.location.protocol === 'file:';
-  const storages = [localStorage, sessionStorage];
-
   function safeGet(storage, key) {
     try { return storage.getItem(key); } catch (e) { return null; }
   }
@@ -11,21 +8,56 @@
     try { storage.setItem(key, value); return true; } catch (e) { return false; }
   }
 
+  function safeRemove(storage, key) {
+    try { storage.removeItem(key); } catch (e) {}
+  }
+
   window.AppStorage = {
     get: function(key) {
-      let v = safeGet(localStorage, key);
-      if (v === null || v === undefined) v = safeGet(sessionStorage, key);
-      try { return v ? JSON.parse(v) : null; } catch (e) { console.error('AppStorage.get parse error', e); return null; }
+      try {
+        // Try localStorage first
+        let v = safeGet(localStorage, key);
+        
+        // Fall back to sessionStorage
+        if (v === null || v === undefined) {
+          v = safeGet(sessionStorage, key);
+        }
+        
+        // Parse and return
+        if (v) {
+          try {
+            const parsed = JSON.parse(v);
+            return parsed;
+          } catch (parseErr) {
+            console.error('AppStorage.get JSON parse error for key:', key, parseErr);
+            return null;
+          }
+        }
+        return null;
+      } catch (e) {
+        console.error('AppStorage.get error:', e);
+        return null;
+      }
     },
 
     set: function(key, value) {
-      const str = JSON.stringify(value);
-      safesetAll(str, key);
+      try {
+        const str = JSON.stringify(value);
+        // Write to both storages
+        safeSet(localStorage, key, str);
+        safeSet(sessionStorage, key, str);
+      } catch (e) {
+        console.error('AppStorage.set error:', e);
+      }
     },
 
     remove: function(key) {
-      try { localStorage.removeItem(key); } catch (e) {}
-      try { sessionStorage.removeItem(key); } catch (e) {}
+      try {
+        safeRemove(localStorage, key);
+        safeRemove(sessionStorage, key);
+      } catch (e) {
+        console.error('AppStorage.remove error:', e);
+      }
     },
 
     raw: {
@@ -34,10 +66,5 @@
     }
   };
 
-  function safesetAll(str, key) {
-    try { safeSet(localStorage, key, str); } catch (e) {}
-    try { safeSet(sessionStorage, key, str); } catch (e) {}
-  }
-
-  window.AppStorage._safesetAll = safesetAll;
+  console.log('AppStorage initialized');
 })();
