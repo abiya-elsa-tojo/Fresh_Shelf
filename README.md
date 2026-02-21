@@ -56,16 +56,16 @@ List the key features of your project:
 
 #### Screenshots (Add at least 3)
 
-![<img width="1366" height="768" alt="Screenshot (1)" src="https://github.com/user-attachments/assets/2e07c79e-a9cf-4e09-9869-d44ae5f6d0d8" />
-](Add screenshot 1 here with proper name)
+<img width="1366" height="768" alt="Screenshot (1)" src="https://github.com/user-attachments/assets/2e07c79e-a9cf-4e09-9869-d44ae5f6d0d8" />
+
 Screenshot of the Fresh Shelf website homepage, showing the title, tagline, and a “Get Started” button.
 
-![<img width="1366" height="768" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/606e21a7-53be-4b3d-bfa7-e5e446b694d1" />
-](Add screenshot 2 here with proper name)
+<img width="1366" height="768" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/606e21a7-53be-4b3d-bfa7-e5e446b694d1" />
+
 Dashboard page of Fresh Shelf displaying category selection dropdown for organizing food items.
 
-![<img width="1366" height="768" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/9d916bec-43c4-4551-a000-bd36155d5dee" />
-](Add screenshot 3 here with proper name)
+<img width="1366" height="768" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/9d916bec-43c4-4551-a000-bd36155d5dee" />
+
 “Add Item interface of Fresh Shelf showing product name, expiry date input, and saved items with expiry alerts.”
 
 #### Diagrams
