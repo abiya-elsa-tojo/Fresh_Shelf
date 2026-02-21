@@ -84,7 +84,7 @@ Dashboard page of Fresh Shelf displaying category selection dropdown for organiz
 ## Project Demo
 
 ### Video
-[https://drive.google.com/file/d/1bDpgJBT9a85zD1LQQ8QVTePCgD0e4RVn/view?usp=drive_link]
+[https://drive.google.com/drive/folders/1tQ2Mxk7pSUX7jNcF1SwSe_OyJi2iFwYy?usp=sharing]
 
 *Explain what the video demonstrates - key features, user flow, technical highlights*
 
