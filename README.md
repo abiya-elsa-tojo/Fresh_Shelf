@@ -76,10 +76,6 @@ Dashboard page of Fresh Shelf displaying category selection dropdown for organiz
 ![Architecture Diagram](docs/architecture.png)
 *Explain your system architecture - components, data flow, tech stack interaction*
 
-**Application Workflow:**
-
-![Workflow](docs/workflow.png)
-*Add caption explaining your workflow*
 
 ---
 
@@ -92,8 +88,6 @@ Dashboard page of Fresh Shelf displaying category selection dropdown for organiz
 
 *Explain what the video demonstrates - key features, user flow, technical highlights*
 
-### Additional Demos
-[Add any extra demo materials/links - Live site, APK download, online demo, etc.]
 
 ---
 
@@ -134,6 +128,10 @@ If you used AI tools during development, document them here for transparency:
 
 
 ---
+## License
+
+This project is licensed under the [MIT License] License - see the [MIT License](Permissive, widely used) file for details.
+
 
 
 ---
